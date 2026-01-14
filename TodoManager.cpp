@@ -6,15 +6,25 @@
 TodoManager::TodoManager() {
     loadData();//va a leggere il file dove sono stati salvati i task
 }
-
 void TodoManager::addEntry(const std::string& desc, const std::string& start, const std::string& end) {
-    taskList.emplace_back(desc, start, end);//aggiunge il nuovo task
-    autoSave();//salva il task sul file
+    //Controllo che l'ora di inizio sia prima di quella finale
+    if (start >= end) {
+        throw std::invalid_argument("L'orario di inizio deve essere precedente all'orario di fine.");
+    }
+
+    // Controllo sovrapposizione
+    if (Overlapping(start, end)) {
+        throw std::runtime_error("Attenzione: questo orario si sovrappone a un'attivita' gia' esistente!");
+    }
+
+    //Se tutto è ok, aggiungo e salvo
+    taskList.emplace_back(desc, start, end);
+    autoSave();
 }
 
 void TodoManager::removeEntry(int index) {
     // Controllo che il numero del task selezionato per essere calcellato sia corretto
-    //se non è corretto lancia una eccezione
+    //se non è corretto, lancia una eccezione
     if (index < 0 || index >= taskList.size()) {
         throw std::out_of_range("Numero attivita' non valido! L'attivita' non esiste.");
     }
@@ -72,3 +82,14 @@ void TodoManager::loadData() {
 }
 
 bool TodoManager::hasNoTasks() const { return taskList.empty(); }
+
+bool TodoManager::Overlapping(const std::string& newStart, const std::string& newEnd) const {
+    for (const auto& existingTask : taskList) {
+        // Se il nuovo task inizia prima e finisce dopo un certo lasso di tempo gia assegnato
+        // oppure il nuovo task finisce e inizia nello stesso momento di un task gia esistente...
+        if ((newStart < existingTask.getEndTime() && newEnd > existingTask.getStartTime())||(newStart == existingTask.getEndTime() && newEnd == existingTask.getStartTime())) {
+            return true; // C'è una sovrapposizione!
+        }
+    }
+    return false; // L'orario è libero
+}

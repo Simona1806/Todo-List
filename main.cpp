@@ -41,6 +41,7 @@ int main() {
                     manager.addEntry(d, s, e);
                     std::cout << ">> Attivita' aggiunta e salvata!" << std::endl;
                 } catch (const std::exception& ex) {
+                    // Se Overlapping restituisce true, torna qui e stampa l'errore
                     std::cerr << "ERRORE: " << ex.what() << std::endl;
                 }
                 break;

@@ -19,6 +19,7 @@ public:
     void changeStatus(int index);
     void showList() const;
     bool hasNoTasks() const;
+    bool Overlapping(const std::string& newStart, const std::string& newEnd) const;
 };
 
 #endif
