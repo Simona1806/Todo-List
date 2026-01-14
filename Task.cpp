@@ -2,7 +2,7 @@
 
 Task::Task(std::string desc, std::string start, std::string end, bool done)
     : description(desc), startTime(start), endTime(end), isDone(done) {}
-
+//Cambia stato
 void Task::toggleStatus() {
     isDone = !isDone;
 }

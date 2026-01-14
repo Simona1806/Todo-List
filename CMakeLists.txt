@@ -9,4 +9,5 @@ add_executable(Todo-List main.cpp
         Task.h
         Task.cpp
         TodoManager.h
-        TodoManager.cpp)
+        TodoManager.cpp
+)

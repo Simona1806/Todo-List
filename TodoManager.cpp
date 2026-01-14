@@ -54,7 +54,7 @@ void TodoManager::autoSave() const {
     }
     file.close();
 }
-//carica i task sul file
+//Carica i task sul file
 void TodoManager::loadData() {
     std::ifstream file(fileName);
     if (!file.is_open()) return;
