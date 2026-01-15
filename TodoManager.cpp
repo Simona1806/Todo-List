@@ -2,10 +2,17 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept> // Necessario per le eccezioni
+#include <algorithm> // Necessario per std::sort
 
 TodoManager::TodoManager() {
     loadData();//va a leggere il file dove sono stati salvati i task
 }
+//funzione che ordina i task in ordine crescente di orario
+void TodoManager::sortTasks() {
+    // std::sort userà automaticamente l'operator< sovracaricato
+    std::sort(taskList.begin(), taskList.end());
+}
+
 void TodoManager::addEntry(const std::string& desc, const Time& start, const Time& end) {
     //Controllo che l'ora di inizio sia prima di quella finale
     if (start >= end) {
@@ -16,8 +23,9 @@ void TodoManager::addEntry(const std::string& desc, const Time& start, const Tim
     if (Overlapping(start, end)) {
         throw std::runtime_error("Attenzione: questo orario si sovrappone a un'attivita' gia' esistente!");
     }
-    //Se tutto è ok, aggiungo e salvo
+    //Se tutto è ok, aggiungo,ordino e salvo
     taskList.emplace_back(desc, start, end);
+    sortTasks();
     autoSave();
 }
 

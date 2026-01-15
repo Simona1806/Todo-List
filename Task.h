@@ -21,6 +21,7 @@ public:
     // Metodi
     void toggleStatus();
     std::string toString() const;
+    bool operator<(const Task& other) const;
 };
 
 #endif

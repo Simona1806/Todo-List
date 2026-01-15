@@ -3,9 +3,7 @@
 #include <stdexcept>
 #include "TodoManager.h"
 
-/*Da aggiungere: modalità importante
- *ordinare in base all'ora e non all'inserimento
-*/
+/*Da aggiungere: modalità importante */
 
 
 int main() {

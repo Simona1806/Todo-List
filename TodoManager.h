@@ -20,6 +20,7 @@ public:
     void showList() const;
     bool hasNoTasks() const;
     bool Overlapping(const Time& newStart, const Time& newEnd) const;
+    void sortTasks();
 };
 
 #endif

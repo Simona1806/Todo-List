@@ -11,6 +11,7 @@ std::string Task::getDescription() const { return description; }
 Time Task::getStartTime() const { return startTime; }
 Time Task::getEndTime() const { return endTime; }
 bool Task::getStatus() const { return isDone; }
+bool Task::operator<(const Task& other)const { return this->startTime < other.startTime; }
 
 std::string Task::toString() const {
     std::string status = isDone ? "[FATTO]   " : "[DA FARE] ";
