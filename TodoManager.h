@@ -14,12 +14,12 @@ private:
 
 public:
     TodoManager();
-    void addEntry(const std::string& desc, const std::string& start, const std::string& end);
+    void addEntry(const std::string& desc, const Time& start, const Time& end);
     void removeEntry(int index);
     void changeStatus(int index);
     void showList() const;
     bool hasNoTasks() const;
-    bool Overlapping(const std::string& newStart, const std::string& newEnd) const;
+    bool Overlapping(const Time& newStart, const Time& newEnd) const;
 };
 
 #endif

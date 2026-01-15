@@ -6,7 +6,7 @@
 TodoManager::TodoManager() {
     loadData();//va a leggere il file dove sono stati salvati i task
 }
-void TodoManager::addEntry(const std::string& desc, const std::string& start, const std::string& end) {
+void TodoManager::addEntry(const std::string& desc, const Time& start, const Time& end) {
     //Controllo che l'ora di inizio sia prima di quella finale
     if (start >= end) {
         throw std::invalid_argument("L'orario di inizio deve essere precedente all'orario di fine.");
@@ -16,7 +16,6 @@ void TodoManager::addEntry(const std::string& desc, const std::string& start, co
     if (Overlapping(start, end)) {
         throw std::runtime_error("Attenzione: questo orario si sovrappone a un'attivita' gia' esistente!");
     }
-
     //Se tutto è ok, aggiungo e salvo
     taskList.emplace_back(desc, start, end);
     autoSave();
@@ -59,8 +58,7 @@ void TodoManager::autoSave() const {
         throw std::runtime_error("Errore critico: Impossibile accedere al file per il salvataggio.");
     }
     for (const auto& t : taskList) {
-        file << t.getDescription() << ";" << t.getStartTime() << ";"
-             << t.getEndTime() << ";" << t.getStatus() << "\n";
+        file << t.getDescription() << ";" << t.getStartTime() << ";" << t.getEndTime() << ";" << t.getStatus() << "\n";
     }
     file.close();
 }
@@ -69,13 +67,20 @@ void TodoManager::loadData() {
     std::ifstream file(fileName);
     if (!file.is_open()) return;
 
-    std::string desc, start, end, statusStr;
+    std::string desc, startStr, endStr, statusStr;
     while (std::getline(file, desc, ';')) {
-        std::getline(file, start, ';');
-        std::getline(file, end, ';');
+        std::getline(file, startStr, ';');
+        std::getline(file, endStr, ';');
         std::getline(file, statusStr);
+
         if (!desc.empty()) {
-            taskList.emplace_back(desc, start, end, (statusStr == "1"));
+            // Converte l'ora in numeri
+            int h1 = std::stoi(startStr.substr(0, 2));
+            int m1 = std::stoi(startStr.substr(3, 2));
+            int h2 = std::stoi(endStr.substr(0, 2));
+            int m2 = std::stoi(endStr.substr(3, 2));
+
+            taskList.emplace_back(desc, Time(h1, m1), Time(h2, m2), (statusStr == "1"));
         }
     }
     file.close();
@@ -83,7 +88,7 @@ void TodoManager::loadData() {
 
 bool TodoManager::hasNoTasks() const { return taskList.empty(); }
 
-bool TodoManager::Overlapping(const std::string& newStart, const std::string& newEnd) const {
+bool TodoManager::Overlapping(const Time& newStart, const Time& newEnd) const {
     for (const auto& existingTask : taskList) {
         // Se il nuovo task inizia prima e finisce dopo un certo lasso di tempo gia assegnato
         // oppure il nuovo task finisce e inizia nello stesso momento di un task gia esistente...

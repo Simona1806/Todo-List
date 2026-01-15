@@ -10,4 +10,6 @@ add_executable(Todo-List main.cpp
         Task.cpp
         TodoManager.h
         TodoManager.cpp
+        Time.cpp
+        Time.h
 )

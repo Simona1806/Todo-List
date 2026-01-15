@@ -3,6 +3,11 @@
 #include <stdexcept>
 #include "TodoManager.h"
 
+/*Da aggiungere: modalità importante
+ *ordinare in base all'ora e non all'inserimento
+*/
+
+
 int main() {
     TodoManager manager;
     int scelta = -1;
@@ -29,20 +34,25 @@ int main() {
 
         switch (scelta) {
             case 1: {
-                std::string d, s, e;
+                std::string d;
+                int h1, m1, h2, m2;
+
                 std::cout << "Cosa hai in piano per oggi? ";
                 std::getline(std::cin, d);
-                std::cout << "Ora inizio (HH:MM): ";
-                std::getline(std::cin, s);
-                std::cout << "Ora fine (HH:MM):   ";
-                std::getline(std::cin, e);
-                //Uso le eccezioni per assicurarmi che la scelta sia stata salvata correttamente
+
+                std::cout << "Ora inizio - Ora (0-23): "; std::cin >> h1;
+                std::cout << "Ora inizio - Minuti (0-59): "; std::cin >> m1;
+
+                std::cout << "Ora fine - Ora (0-23): "; std::cin >> h2;
+                std::cout << "Ora fine - Minuti (0-59): "; std::cin >> m2;
+
                 try {
-                    manager.addEntry(d, s, e);
-                    std::cout << ">> Attivita' aggiunta e salvata!" << std::endl;
-                } catch (const std::exception& ex) {
-                    // Se Overlapping restituisce true, torna qui e stampa l'errore
-                    std::cerr << "ERRORE: " << ex.what() << std::endl;
+                    Time start(h1, m1);
+                    Time end(h2, m2);
+                    manager.addEntry(d, start, end);
+                    std::cout << ">> Attivita' aggiunta!" << std::endl;
+                } catch (const std::exception& e) {
+                    std::cerr << "ERRORE: " << e.what() << std::endl;
                 }
                 break;
             }
