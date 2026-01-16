@@ -6,18 +6,23 @@
 
 class Task {
 private:
+    int id;
     std::string description;
     Time startTime;
     Time endTime;
     bool isDone;
+    bool important;
+
 
 public:
-    Task(std::string desc, Time start, Time end, bool done = false);
+    Task(int id, std::string desc, Time start, Time end, bool done = false, bool important = false);
     // Getters
     std::string getDescription() const;
-    Time getStartTime() const;
+    Time getStartTime() const ;
     Time getEndTime() const;
-    bool getStatus() const;
+    bool getStatus() const ;
+    bool isImportant() const;
+    int getId() const;
     // Metodi
     void toggleStatus();
     std::string toString() const;

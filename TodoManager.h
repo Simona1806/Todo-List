@@ -8,13 +8,14 @@
 class TodoManager {
 private:
     std::vector<Task> taskList;
+    int nextId=1;
     const std::string fileName = "database_todo.txt";
     void autoSave() const;
     void loadData();
 
 public:
     TodoManager();
-    void addEntry(const std::string& desc, const Time& start, const Time& end);
+    void addEntry(const std::string& desc, const Time& start, const Time& end, bool important = false);
     void removeEntry(int index);
     void changeStatus(int index);
     void showList() const;

@@ -5,7 +5,7 @@
 #include <algorithm> // Necessario per std::sort
 
 TodoManager::TodoManager() {
-    loadData();//va a leggere il file dove sono stati salvati i task
+    loadData();//va a pescare il contenuto del file dove sono stati salvati i task
 }
 //funzione che ordina i task in ordine crescente di orario
 void TodoManager::sortTasks() {
@@ -13,7 +13,7 @@ void TodoManager::sortTasks() {
     std::sort(taskList.begin(), taskList.end());
 }
 
-void TodoManager::addEntry(const std::string& desc, const Time& start, const Time& end) {
+void TodoManager::addEntry(const std::string& desc, const Time& start, const Time& end, bool important) {
     //Controllo che l'ora di inizio sia prima di quella finale
     if (start >= end) {
         throw std::invalid_argument("L'orario di inizio deve essere precedente all'orario di fine.");
@@ -23,41 +23,78 @@ void TodoManager::addEntry(const std::string& desc, const Time& start, const Tim
     if (Overlapping(start, end)) {
         throw std::runtime_error("Attenzione: questo orario si sovrappone a un'attivita' gia' esistente!");
     }
-    //Se tutto è ok, aggiungo,ordino e salvo
-    taskList.emplace_back(desc, start, end);
+    //Se tutto è ok, aggiungo(incrementando id),ordino e salvo
+    taskList.emplace_back(nextId, desc, start, end,false, important);
+    nextId++;
     sortTasks();
     autoSave();
 }
-
 void TodoManager::removeEntry(int index) {
     // Controllo che il numero del task selezionato per essere calcellato sia corretto
     //se non è corretto, lancia una eccezione
-    if (index < 0 || index >= taskList.size()) {
-        throw std::out_of_range("Numero attivita' non valido! L'attivita' non esiste.");
+    if (index <= 0) {
+        throw std::out_of_range("Numero attivita' non valido!");
     }
     //altrimenti lo cancella
-    taskList.erase(taskList.begin() + index);
-    autoSave();//e aggiorna il file
+    for (auto it = taskList.begin(); it != taskList.end(); ++it) {
+        if (it->getId() == index) {
+            taskList.erase(it);
+            autoSave();
+
+            return;
+        }
+    }
+    throw std::out_of_range("ID non trovato!");
+
 }
 
 void TodoManager::changeStatus(int index) {
     // Controllo indice con lancio di eccezione
-    if (index < 0 || index >= taskList.size()) {
-        throw std::out_of_range("Numero attivita' non valido! Impossibile cambiare stato.");
+    bool trovato = false;
+    for (auto& t : taskList) {
+        if (t.getId() == index) {
+            t.toggleStatus();
+            trovato = true;
+            break;
+        }
     }
-    taskList[index].toggleStatus();
+    if (!trovato) {
+        throw std::out_of_range("ID non trovato! Impossibile cambiare lo stato.");
+    }
+
     autoSave();
 }
 //permette di visualizzare i task
 void TodoManager::showList() const {
     if (taskList.empty()) {
-        std::cout << "\n>>> Nessuna attivita' presente." << std::endl;
+        std::cout << "Nessunta attivita' presente." << std::endl;
         return;
     }
-    std::cout << "\n--- LISTA ATTIVITA' ---" << std::endl;
-    for (size_t i = 0; i < taskList.size(); i++) {
-        std::cout << i + 1 << ". " << taskList[i].toString() << std::endl;
+
+    std::cout << "\n===============================" << std::endl;
+    std::cout << "       TASK IMPORTANTI           " << std::endl;
+    std::cout << "===============================" << std::endl;
+    bool hasImp = false;
+    for (const auto& t : taskList) {
+        if (t.isImportant()) {
+            std::cout << t.getId()<< ") " << t.toString() << std::endl;
+            hasImp = true;
+        }
     }
+    if (!hasImp) std::cout << "  (Nessun task importante)" << std::endl;
+
+    std::cout << "\n-------------------------------" << std::endl;
+    std::cout << "       TASK NORMALI              " << std::endl;
+    std::cout << "-------------------------------" << std::endl;
+    bool hasNorm = false;
+    for (const auto& t : taskList) {
+        if (!t.isImportant()) {
+            std::cout << t.getId()<< ")" << t.toString() << std::endl;
+            hasNorm = true;
+        }
+    }
+    if (!hasNorm) std::cout << "  (Nessun task normale)" << std::endl;
+    std::cout << "===============================\n" << std::endl;
 }
 //aggiorna il file
 void TodoManager::autoSave() const {
@@ -66,31 +103,50 @@ void TodoManager::autoSave() const {
         throw std::runtime_error("Errore critico: Impossibile accedere al file per il salvataggio.");
     }
     for (const auto& t : taskList) {
-        file << t.getDescription() << ";" << t.getStartTime() << ";" << t.getEndTime() << ";" << t.getStatus() << "\n";
+        file << t.getId() << ";" << t.getDescription() << ";" << t.getStartTime() << ";" << t.getEndTime() << ";" << t.getStatus() << ";"<<t.isImportant()<<"\n";
     }
     file.close();
 }
 //Carica i task sul file
 void TodoManager::loadData() {
     std::ifstream file(fileName);
-    if (!file.is_open()) return;
+    if (!file.is_open()) {
+        nextId=1;
+        return;
+    };
 
-    std::string desc, startStr, endStr, statusStr;
-    while (std::getline(file, desc, ';')) {
-        std::getline(file, startStr, ';');
-        std::getline(file, endStr, ';');
-        std::getline(file, statusStr);
+    std::string idStr, desc, startStr, endStr, statusStr, impStr;
+    int maxId = 0;
 
-        if (!desc.empty()) {
-            // Converte l'ora in numeri
-            int h1 = std::stoi(startStr.substr(0, 2));
-            int m1 = std::stoi(startStr.substr(3, 2));
-            int h2 = std::stoi(endStr.substr(0, 2));
-            int m2 = std::stoi(endStr.substr(3, 2));
+    while (std::getline(file, idStr, ';')) {
+        if (!std::getline(file, desc, ';')) break;
+        if (!std::getline(file, startStr, ';')) break;
+        if (!std::getline(file, endStr, ';')) break;
+        if (!std::getline(file, statusStr, ';')) break;
+        if (!std::getline(file, impStr)) break;
 
-            taskList.emplace_back(desc, Time(h1, m1), Time(h2, m2), (statusStr == "1"));
+        try {
+            if (startStr.length() >= 5 && endStr.length() >= 5) {
+                int currentId = std::stoi(idStr);
+
+                int h1 = std::stoi(startStr.substr(0, 2));
+                int m1 = std::stoi(startStr.substr(3, 2));
+                int h2 = std::stoi(endStr.substr(0, 2));
+                int m2 = std::stoi(endStr.substr(3, 2));
+
+                bool isDone = (statusStr == "1");
+                bool isImp = (impStr == "1" || impStr.find('1') != std::string::npos);
+
+                taskList.emplace_back(currentId, desc, Time(h1, m1), Time(h2, m2), isDone, isImp);
+                if (currentId > maxId) maxId = currentId;
+
+            }
+        } catch (const std::exception& e) {
+            // Se una riga è scritta male, la ignora e passa alla prossima
+            continue;
         }
     }
+    nextId = maxId + 1;
     file.close();
 }
 
@@ -100,7 +156,7 @@ bool TodoManager::Overlapping(const Time& newStart, const Time& newEnd) const {
     for (const auto& existingTask : taskList) {
         // Se il nuovo task inizia prima e finisce dopo un certo lasso di tempo gia assegnato
         // oppure il nuovo task finisce e inizia nello stesso momento di un task gia esistente...
-        if ((newStart < existingTask.getEndTime() && newEnd > existingTask.getStartTime())||(newStart == existingTask.getEndTime() && newEnd == existingTask.getStartTime())) {
+        if (newStart < existingTask.getEndTime() && newEnd > existingTask.getStartTime()) {
             return true; // C'è una sovrapposizione!
         }
     }
