@@ -9,7 +9,7 @@ TodoManager::TodoManager() {
 }
 //funzione che ordina i task in ordine crescente di orario
 void TodoManager::sortTasks() {
-    // std::sort userà automaticamente l'operator< sovracaricato
+    // std::sort userà automaticamente l'operator < sovracaricato
     std::sort(taskList.begin(), taskList.end());
 }
 
@@ -96,7 +96,7 @@ void TodoManager::showList() const {
     if (!hasNorm) std::cout << "  (Nessun task normale)" << std::endl;
     std::cout << "===============================\n" << std::endl;
 }
-//aggiorna il file
+//Scrive sul file
 void TodoManager::autoSave() const {
     std::ofstream file(fileName);
     if (!file.is_open()) {
@@ -107,7 +107,7 @@ void TodoManager::autoSave() const {
     }
     file.close();
 }
-//Carica i task sul file
+//Caricamento contenuto file
 void TodoManager::loadData() {
     std::ifstream file(fileName);
     if (!file.is_open()) {
@@ -135,7 +135,7 @@ void TodoManager::loadData() {
                 int m2 = std::stoi(endStr.substr(3, 2));
 
                 bool isDone = (statusStr == "1");
-                bool isImp = (impStr == "1" || impStr.find('1') != std::string::npos);
+                bool isImp = (impStr == "1");
 
                 taskList.emplace_back(currentId, desc, Time(h1, m1), Time(h2, m2), isDone, isImp);
                 if (currentId > maxId) maxId = currentId;

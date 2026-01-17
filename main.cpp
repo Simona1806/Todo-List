@@ -25,7 +25,8 @@ int main() {
             scelta = -1;
             continue;
         }
-        std::cin.ignore(1000, '\n');
+        std::cin.ignore(1000, '\n');//serve per cancellare il '\n' dell'invio
+        //la funzione getline legge tutto finchè non trova \n, se viene lasciato si fermerà li senza leggere la descrizione del task o altro
 
         switch (scelta) {
             case 1: {
@@ -34,7 +35,7 @@ int main() {
                 char impChar;
 
                 std::cout << "Cosa hai in piano per oggi? ";
-                std::getline(std::cin, d);
+                std::getline(std::cin, d);//legge finche trova \n, non uso cin per questo
 
                 std::cout << "Ora inizio (HH MM): ";
                 if (!(std::cin >> h1 >> m1)) {
