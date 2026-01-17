@@ -73,7 +73,7 @@ void TodoManager::showList() const {
 
     std::cout << "\n===============================" << std::endl;
     std::cout << "       TASK IMPORTANTI           " << std::endl;
-    std::cout << "===============================" << std::endl;
+    std::cout << "\n-------------------------------" << std::endl;
     bool hasImp = false;
     for (const auto& t : taskList) {
         if (t.isImportant()) {
@@ -83,9 +83,9 @@ void TodoManager::showList() const {
     }
     if (!hasImp) std::cout << "  (Nessun task importante)" << std::endl;
 
-    std::cout << "\n-------------------------------" << std::endl;
+    std::cout << "\n===============================" << std::endl;
     std::cout << "       TASK NORMALI              " << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+    std::cout << "\n-------------------------------" << std::endl;
     bool hasNorm = false;
     for (const auto& t : taskList) {
         if (!t.isImportant()) {

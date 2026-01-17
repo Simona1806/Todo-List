@@ -3,8 +3,8 @@
 #include <sstream>
 
 Time::Time(int h, int m) {
-    if (h >= 0 && h < 24) hours(h); else hours(0);
-    if (m >= 0 && m < 60) minutes(m); else minutes(0);
+    if (h >= 0 && h < 24) hours = h; else hours = 0;
+    if (m >= 0 && m < 60) minutes = m; else minutes= 0;
 }
 //overloading degli operatori per poterli usare nel confronto delle ore e minuti
 bool Time::operator==(const Time& other) const {
